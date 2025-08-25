@@ -1,7 +1,10 @@
 <% content_for :head do %>
   <%= vite_typescript_tag 'home.tsx' %>
 <% end %>
-<header class="p-2 flex justify-end">
-  <%= link_to "Sign in", new_user_session_path %>
-</header>
-<div id="root"></div>
+<div id="root"
+     data-company-id="<%= @company_id %>"
+     data-store-name="<%= @integration_settings&.settings&.dig('store_name') %>"
+     data-warehouse-name="<%= @integration_settings&.settings&.dig('warehouse_name') %>"
+     data-username="<%= @integration_settings&.settings&.dig('username') %>"
+     data-password="<%= @integration_settings&.settings&.dig('password') %>">
+</div>
