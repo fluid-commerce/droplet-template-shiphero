@@ -15,5 +15,11 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :integration_settings, only: %i[create] do
+    collection do
+      post :test_connection
+    end
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 end
