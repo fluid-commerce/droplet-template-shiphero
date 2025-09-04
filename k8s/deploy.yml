@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droplet-shiphero
+  labels:
+    app: droplet-shiphero
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: droplet-shiphero
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 2
+  template:
+    metadata:
+      labels:
+        app: droplet-shiphero
+        main-app: droplets
+    spec:
+      containers:
+        #api
+        - name: droplet-shiphero
+          image: europe-west1-docker.pkg.dev/fluid-417204/fluid-droplet-shiphero-rails/web:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: droplet-shiphero-secret
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 80
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 80
+            timeoutSeconds: 10
+          env:
+            - name: RAILS_MAX_THREADS
+              value: "5"
+            - name: RAILS_MIN_THREADS
+              value: "5"
+          resources:
+            limits:
+              memory: 2000Mi
+            requests:
+              cpu: 250m
+              memory: 700Mi
+        - name: cloudsql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
+          command: ["/cloud_sql_proxy",
+                     "-instances=fluid-droplet-shiphero:europe-west1:fluid-droplet-shiphero=tcp:0.0.0.0:3306",
+                     "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+          terminationGracePeriodSeconds: 60
+          volumes:
+            - name: cloudsql-instance-credentials
+              secret:
+                secretName: cloudsql-instance-credentials
