@@ -7,7 +7,7 @@ steps:
         "build",
         "--no-cache",
         "-t",
-        "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
         ".",
         "-f",
         "docker/Dockerfile",
@@ -18,8 +18,8 @@ steps:
     args:
       [
         "tag",
-        "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
-        "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest",
+        "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest",
       ]
     id: Tag
 
@@ -27,7 +27,7 @@ steps:
     args:
       [
         "push",
-        "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
       ]
     id: push commit sha
 
@@ -35,7 +35,7 @@ steps:
     args:
       [
         "push",
-        "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest",
+        "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest",
       ]
     id: push latest
 
@@ -46,8 +46,8 @@ steps:
         "jobs",
         "update",
         "${_APP_NAME}-migrations",
-        "--image=us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
-        "--region=us-west3",
+        "--image=europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "--region=europe-west1",
         "--execute-now",
         "--wait",
       ]
@@ -62,8 +62,8 @@ steps:
         "update",
         "${_APP_NAME}",
         "--platform=managed",
-        "--image=us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
-        "--region=us-west3",
+        "--image=europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "--region=europe-west1",
         "--revision-suffix=${COMMIT_SHA}-${_TIMESTAMP}",
       ]
     id: Deploy Production
@@ -76,20 +76,20 @@ steps:
         "instances",
         "update-container",
         "${_APP_NAME}-jobs-console",
-        "--zone=us-west3-b",
-        "--container-image=us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
+        "--zone=europe-west1-b",
+        "--container-image=europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA",
         "--quiet",
       ]
     id: Update Container Jobs Production
     entrypoint: gcloud
 
 substitutions:
-  _APP_NAME: "fluid-droplet-NAME"
+  _APP_NAME: "fluid-droplet-shiphero"
   _APP_REPOSITORY: "fluid-droplets"
 
 images:
-  - "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA"
-  - "us-west3-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest"
+  - "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:$COMMIT_SHA"
+  - "europe-west1-docker.pkg.dev/${PROJECT_ID}/${_APP_REPOSITORY}/${_APP_NAME}-rails/web:latest"
 
 options:
   substitutionOption: ALLOW_LOOSE
