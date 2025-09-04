@@ -1,5 +1,5 @@
 # google cloud build
-# gcloud beta builds submit --config cloudbuild-production.yml --region=us-west3 --substitutions=COMMIT_SHA=$(git rev-parse --short HEAD),_TIMESTAMP=$(date +%Y%m%d%H%M%S) --project=fluid-417204 .
+# gcloud beta builds submit --config cloudbuild-production.yml --region=europe-west1 --substitutions=COMMIT_SHA=$(git rev-parse --short HEAD),_TIMESTAMP=$(date +%Y%m%d%H%M%S) --project=fluid-417204 .
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
