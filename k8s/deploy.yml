@@ -58,17 +58,28 @@ spec:
             requests:
               cpu: 250m
               memory: 700Mi
-        - name: cloudsql-proxy
+      initContainers:
+          #droplet-shiphero-cloudsql-proxy
+        - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
-          command: ["/cloud_sql_proxy",
-                     "-instances=fluid-droplet-shiphero:europe-west1:fluid-droplet-shiphero=tcp:0.0.0.0:3306",
-                     "-credential_file=/secrets/cloudsql/credentials.json"]
+          args:
+            - "--auto-iam-authn"
+            - "--structured-logs"
+            - "--port=5432"
+            - "fluid-droplet-shiphero:europe-west1:fluid-droplet-shiphero"
+            - "--credential_file=/secrets/service-account.json"
+          securityContext:
+            runAsNonRoot: true
           volumeMounts:
-            - name: cloudsql-instance-credentials
-              mountPath: /secrets/cloudsql
+            - name: droplet-shiphero-cloudsql-sa-volume
+              mountPath: /secrets/
               readOnly: true
-          terminationGracePeriodSeconds: 60
+          resources:
+            requests:
+              cpu: 250m
+              memory: 700Mi
       volumes:
-        - name: cloudsql-instance-credentials
+        #droplet-shiphero-cloudsql-sa-volume
+        - name: droplet-shiphero-cloudsql-sa-volume
           secret:
-            secretName: cloudsql-instance-credentials
+            secretName: droplet-shiphero-cloudsql-sa
