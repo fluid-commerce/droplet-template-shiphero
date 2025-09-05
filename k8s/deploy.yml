@@ -14,7 +14,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 2
-      maxUnavailable: 2
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -32,20 +32,21 @@ spec:
           ports:
             - containerPort: 80
           readinessProbe:
-            failureThreshold: 3
             httpGet:
-              path: /
+              path: /up
               port: 80
-            initialDelaySeconds: 20
-            periodSeconds: 80
-            timeoutSeconds: 10
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /up
               port: 80
-            initialDelaySeconds: 20
-            periodSeconds: 80
-            timeoutSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
           env:
             - name: RAILS_MAX_THREADS
               value: "5"
@@ -67,7 +68,7 @@ spec:
               mountPath: /secrets/cloudsql
               readOnly: true
           terminationGracePeriodSeconds: 60
-          volumes:
-            - name: cloudsql-instance-credentials
-              secret:
-                secretName: cloudsql-instance-credentials
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
