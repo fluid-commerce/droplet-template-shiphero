@@ -44,6 +44,13 @@ variable "email_service_account" {
   type        = string
 }
 
+# Postgres variables
+variable "postgres_password_production_user" {
+  description = "Password of the production user"
+  type        = string
+  sensitive   = true
+}
+
 # Container variables for the Compute Engine instance
 variable "container_image" {
   description = "Image of the container"
@@ -80,7 +87,7 @@ variable "container_db_url_production_cable" {
   sensitive   = true
 }
 
-# variable module cloud_run fluid droplet 
+# variable module cloud_run fluid droplet
 
 variable "vpc_connector_cloud_run" {
   description = "VPC connector"

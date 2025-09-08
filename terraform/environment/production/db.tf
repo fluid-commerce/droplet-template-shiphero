@@ -45,5 +45,5 @@ resource "google_sql_database" "database_production_cable" {
 resource "google_sql_user" "users" {
   name     = "shiphero_production_user"
   instance = module.postgres_db_instance.instance_name
-  password = "*********"
+  password = var.postgres_password_production_user
 }
