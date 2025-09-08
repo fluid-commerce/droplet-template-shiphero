@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droplet-shiphero-solidqueue
+  namespace: droplets
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: droplet-shiphero
+  template:
+    metadata:
+      labels:
+        app: droplet-shiphero
+    spec:
+      containers:
+        - name: droplet-shiphero-solidqueue
+          image: europe-west1-docker.pkg.dev/fluid-417204/fluid-droplet-shiphero-rails/web:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: droplet-shiphero-secret
+          resources:
+            limits:
+              memory: 2000Mi
+            requests:
+              cpu: 250m
+              memory: 700Mi
+          command: ["sh", "-c", "/rails/bin/jobs start"]

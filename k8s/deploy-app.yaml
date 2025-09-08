@@ -20,7 +20,6 @@ spec:
     metadata:
       labels:
         app: droplet-shiphero
-        main-app: droplets
     spec:
       containers:
         #api
