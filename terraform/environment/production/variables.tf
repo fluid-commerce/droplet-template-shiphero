@@ -51,6 +51,11 @@ variable "postgres_password_production_user" {
   sensitive   = true
 }
 
+variable "postgres_name_instance" {
+  description = "Name of the production user"
+  type        = string
+}
+
 # Container variables for the Compute Engine instance
 variable "container_image" {
   description = "Image of the container"
@@ -102,5 +107,11 @@ variable "cloud_sql_instances_cloud_run" {
 variable "environment_variables_cloud_run" {
   description = "Variables for the container"
   type        = map(string)
+}
+
+# cloud run migrations
+variable "cloud_run_migrations_name" {
+  description = "Name of the migrations job"
+  type        = string
 }
 
