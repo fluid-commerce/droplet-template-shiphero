@@ -1,3 +1,10 @@
+# terraform variables
+variable "prefix_terraform" {
+  description = "Prefix of the terraform"
+  type        = string
+}
+
+# project variables
 variable "project_id" {
   description = "Project ID of the instance"
   type        = string
@@ -8,6 +15,7 @@ variable "region" {
   type        = string
 }
 
+# compute engine variables for jobs console
 variable "vm_name" {
   description = "Name of the virtual machine instance"
   type        = string
