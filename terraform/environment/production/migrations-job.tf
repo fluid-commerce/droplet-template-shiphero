@@ -5,7 +5,8 @@ module "cloud_run_job_migrations" {
   region_job       = var.region
 
   cloud_sql_instances_job = var.cloud_sql_instances_cloud_run
-  vpc_connector_job       = var.vpc_connector_cloud_run
+  vpc_network_job         = var.vpc_network_cloud_run
+  vpc_subnet_job          = var.vpc_subnet_cloud_run
 
   image_job = var.container_image
 

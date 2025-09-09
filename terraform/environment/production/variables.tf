@@ -128,3 +128,12 @@ variable "cloud_run_migrations_name" {
   type        = string
 }
 
+variable "vpc_network_cloud_run" {
+  description = "VPC network"
+  type        = string
+}
+
+variable "vpc_subnet_cloud_run" {
+  description = "VPC subnet"
+  type        = string
+}
