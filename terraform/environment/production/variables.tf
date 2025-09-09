@@ -64,6 +64,11 @@ variable "postgres_name_instance" {
   type        = string
 }
 
+variable "postgres_name_database" {
+  description = "Name of the production database prefix"
+  type        = string
+}
+
 # Container variables for the Compute Engine instance
 variable "container_image" {
   description = "Image of the container"

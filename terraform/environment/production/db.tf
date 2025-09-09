@@ -23,22 +23,22 @@ module "postgres_db_instance" {
 
 # Cloud SQL PostgreSQL databases
 resource "google_sql_database" "database_production" {
-  name     = "fluid_droplet_shiphero_production"
+  name     = var.postgres_name_database
   instance = module.postgres_db_instance.instance_name
 }
 
 resource "google_sql_database" "database_production_queue" {
-  name     = "fluid_droplet_shiphero_production_queue"
+  name     = "${var.postgres_name_database}_queue"
   instance = module.postgres_db_instance.instance_name
 }
 
 resource "google_sql_database" "database_production_cache" {
-  name     = "fluid_droplet_shiphero_production_cache"
+  name     = "${var.postgres_name_database}_cache"
   instance = module.postgres_db_instance.instance_name
 }
 
 resource "google_sql_database" "database_production_cable" {
-  name     = "fluid_droplet_shiphero_production_cable"
+  name     = "${var.postgres_name_database}_cable"
   instance = module.postgres_db_instance.instance_name
 }
 
