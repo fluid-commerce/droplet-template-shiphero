@@ -20,5 +20,13 @@ module "rails_jobs" {
   container_db_url_production_cache = var.container_db_url_production_cache
   container_db_url_production_cable = var.container_db_url_production_cable
 
+  # Depends on
+  depends_on = [
+    google_sql_database.database_production,
+    google_sql_database.database_production_queue,
+    google_sql_database.database_production_cache,
+    google_sql_database.database_production_cable,
+    google_sql_user.users
+  ]
 }
 

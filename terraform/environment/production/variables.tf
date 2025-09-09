@@ -1,9 +1,3 @@
-# terraform variables
-variable "prefix_terraform" {
-  description = "Prefix of the terraform"
-  type        = string
-}
-
 # project variables
 variable "project_id" {
   description = "Project ID of the instance"

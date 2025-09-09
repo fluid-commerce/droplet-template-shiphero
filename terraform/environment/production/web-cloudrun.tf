@@ -35,4 +35,12 @@ module "cloud_run_server_rails" {
   # Environment variables
   environment_variables = var.environment_variables_cloud_run
 
+  # Depends on
+  depends_on = [
+    google_sql_database.database_production,
+    google_sql_database.database_production_queue,
+    google_sql_database.database_production_cache,
+    google_sql_database.database_production_cable,
+    google_sql_user.users
+  ]
 }

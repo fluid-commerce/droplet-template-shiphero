@@ -19,4 +19,13 @@ module "cloud_run_job_migrations" {
 
   # Cloud Run service account
   service_account_job_email = var.email_service_account
+
+  # Depends on
+  depends_on = [
+    google_sql_database.database_production,
+    google_sql_database.database_production_queue,
+    google_sql_database.database_production_cache,
+    google_sql_database.database_production_cable,
+    google_sql_user.users
+  ]
 }
