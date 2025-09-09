@@ -2,7 +2,7 @@
 module "postgres_db_instance" {
   source = "../../modules/cloud_sql_postgres"
 
-  instance_name    = "fluid-droplet-shiphero"
+  instance_name    = var.postgres_name_instance
   database_version = "POSTGRES_17"
   region           = var.region
 
