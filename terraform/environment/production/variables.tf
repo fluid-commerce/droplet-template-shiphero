@@ -107,6 +107,11 @@ variable "container_db_url_production_cable" {
 
 # variable module cloud_run fluid droplet
 
+variable "cloud_run_app_name" {
+  description = "Name of the Cloud Run app"
+  type        = string
+}
+
 variable "vpc_connector_cloud_run" {
   description = "VPC connector"
   type        = string
