@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: droplet-shiphero-migration
+  namespace: droplets
+spec:
+  template:
+    spec:
+      containers:
+        - name: droplet-shiphero-migration
+          image: europe-west1-docker.pkg.dev/fluid-417204/fluid-droplet-shiphero-rails/web:latest
+          imagePullPolicy: Always
+          command: ["bundle", "exec", "rails", "db:migrate"]
+          envFrom:
+            - secretRef:
+                name: droplet-shiphero-secret
+          resources:
+            limits:
+              memory: 2000Mi
+            requests:
+              cpu: 250m
+              memory: 700Mi
+      restartPolicy: Never
+  backoffLimit: 0

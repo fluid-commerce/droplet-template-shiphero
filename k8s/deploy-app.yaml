@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: droplet-shiphero
+  namespace: droplets
+  labels:
+    app: droplet-shiphero
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: droplet-shiphero
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: droplet-shiphero
+    spec:
+      containers:
+        #api
+        - name: droplet-shiphero
+          image: europe-west1-docker.pkg.dev/fluid-417204/fluid-droplet-shiphero-rails/web:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: droplet-shiphero-secret
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            - name: RAILS_MAX_THREADS
+              value: "5"
+            - name: RAILS_MIN_THREADS
+              value: "5"
+          resources:
+            limits:
+              memory: 2000Mi
+            requests:
+              cpu: 250m
+              memory: 700Mi
+      initContainers:
+          #droplet-shiphero-cloudsql-proxy
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
+          args:
+            - "--auto-iam-authn"
+            - "--structured-logs"
+            - "--port=5432"
+            - "fluid-droplet-shiphero:europe-west1:fluid-droplet-shiphero"
+            - "--credential_file=/secrets/service-account.json"
+          securityContext:
+            runAsNonRoot: true
+          volumeMounts:
+            - name: droplet-shiphero-cloudsql-sa-volume
+              mountPath: /secrets/
+              readOnly: true
+          resources:
+            requests:
+              cpu: 250m
+              memory: 700Mi
+      volumes:
+        #droplet-shiphero-cloudsql-sa-volume
+        - name: droplet-shiphero-cloudsql-sa-volume
+          secret:
+            secretName: droplet-shiphero-cloudsql-sa

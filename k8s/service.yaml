@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: droplet-shiphero-service
+  namespace: droplets
+spec:
+  selector:
+    app: droplet-shiphero
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
