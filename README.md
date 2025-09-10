@@ -15,21 +15,29 @@ Documentation can be found in the [project's GitHub page](https://fluid-commerce
 - Google Cloud Compute Engine (jobs console)
 - Artifact Registry (Docker)
 
-web: Google Cloud Run name `fluid-droplet-NAME`
+web: Google Cloud Run name `fluid-droplet-shiphero`
 
-jobs console: Google Cloud Compute Engine name `fluid-droplet-NAME-jobs-console`
+migration: Google Cloud Run Job name `fluid-droplet-shiphero-migrations`
+
+jobs console: Google Cloud Compute Engine name `fluid-droplet-shiphero-jobs-console`
 
 ### Deploy to google cloud
 
 Run github action to deploy to google cloud `deploy production`
 or run the following command to deploy to google cloud  
 
-`gcloud beta builds submit --config cloudbuild-production.yml --region=us-west3 --substitutions=COMMIT_SHA=$(git rev-parse --short HEAD),_TIMESTAMP=$(date +%Y%m%d%H%M%S) --project=fluid-417204 .`
+`gcloud beta builds submit --config cloudbuild-production.yml --region=europe-west1 --substitutions=COMMIT_SHA=$(git rev-parse --short HEAD),_TIMESTAMP=$(date +%Y%m%d%H%M%S) --project=fluid-417204 .`
 
 ### Add environment variables to google cloud
 
 Add environment variables to google cloud `add-update-env-gcloud.sh` and run the following command to add environment variables to google cloud
 `sh add-update-env-gcloud.sh`
+
+### Running a rails console on google cloud
+1 - Access ssh from compute engine `fluid-droplet-shiphero-jobs-console`
+2 - Run `docker exec -it $(docker ps -q | head -n 1) bin/rails c`
+#### Check logs
+Run `docker logs -it $(docker ps -q | head -n 1)`
 
 ### Technology Stack
 
