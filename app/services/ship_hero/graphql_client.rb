@@ -49,22 +49,22 @@ module ShipHero
       if response&.dig("data", "order_create", "order")
         order = response["data"]["order_create"]["order"]
         Rails.logger.info "Order created successfully: #{order['id']}"
-        return { success: true, order: order, response: response }
+        { success: true, order: order, response: response }
       else
         Rails.logger.error "Unexpected response format: #{response}"
-        return { success: false, error: "Unexpected response format", details: response }
+        { success: false, error: "Unexpected response format", details: response }
       end
     end
 
     def execute_query(query, variables = {})
       headers = {
         "Content-Type" => "application/json",
-        "Authorization" => "Bearer #{@access_token}"
+        "Authorization" => "Bearer #{@access_token}",
       }
 
       body = {
         query: query,
-        variables: variables
+        variables: variables,
       }
 
       Rails.logger.info "GraphQL Request: #{BASE_URL}"
@@ -94,7 +94,7 @@ module ShipHero
       end
     end
 
-    private
+  private
 
     def get_access_token
       # Check if we have a stored access token

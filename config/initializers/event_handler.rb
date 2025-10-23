@@ -10,10 +10,10 @@ Rails.application.config.to_prepare do
   # Fluid Droplet lifecycle events
   EventHandler.register_handler("droplet.uninstalled", DropletUninstalledJob)
   EventHandler.register_handler("droplet.installed", DropletInstalledJob)
-  
+
   # Fluid order events
   EventHandler.register_handler("order.created", OrderCreatedJob)
-  
+
   # TODO: Register ShipHero webhook events once webhook is configured
   # ShipHero sends webhooks for shipment updates. You will need to:
   # 1. Configure ShipHero webhook URL in their dashboard (pointing to your webhook endpoint)

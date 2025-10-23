@@ -26,4 +26,3 @@ module FluidApi
     end
   end
 end
-

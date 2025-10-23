@@ -31,6 +31,7 @@ class IntegrationSettingsController < ApplicationController
 private
 
   def integration_setting_params
-    params.require(:integration_setting).permit(:company_id, :store_name, :warehouse_name, :username, :password, :fluid_api_token)
+    params.require(:integration_setting).permit(:company_id, :store_name, :warehouse_name, :username, :password,
+:fluid_api_token)
   end
 end

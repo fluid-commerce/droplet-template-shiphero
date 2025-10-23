@@ -8,4 +8,3 @@ class OrderShippedJob < ApplicationJob
     Rails.logger.error("Error syncing order: #{e.message} - OrderShippedJob")
   end
 end
-

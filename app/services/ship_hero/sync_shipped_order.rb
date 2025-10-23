@@ -56,7 +56,7 @@ module ShipHero
       # ShipHero webhook payload structure for shipment_update
       # This will depend on ShipHero's actual webhook structure
       # You may need to adjust based on their API documentation
-      
+
       # Example payload structure (adjust as needed):
       # {
       #   "order_id": "123456",
@@ -80,7 +80,7 @@ module ShipHero
         fluid_order_id: extract_fluid_order_id(order_number),
         tracking_number: tracking_number,
         carrier: payload.dig("carrier"),
-        shipped_date: payload.dig("shipped_date")
+        shipped_date: payload.dig("shipped_date"),
       }
     end
 
@@ -88,7 +88,7 @@ module ShipHero
       # If you stored the Fluid order ID in the order_number field,
       # extract it here. Otherwise, you may need to query your database
       # to find the mapping between ShipHero order and Fluid order.
-      
+
       # For now, assuming order_number contains or is the Fluid order ID
       order_number
     end
@@ -142,4 +142,3 @@ module ShipHero
     end
   end
 end
-

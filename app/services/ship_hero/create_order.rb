@@ -31,7 +31,7 @@ module ShipHero
       end
     end
 
-    private
+  private
 
     def create_order_in_shiphero
       order_data = build_order_data
@@ -68,7 +68,7 @@ module ShipHero
           email: params[:email],
           phone: params[:phone],
         },
-        line_items: build_line_items
+        line_items: build_line_items,
       }
     end
 

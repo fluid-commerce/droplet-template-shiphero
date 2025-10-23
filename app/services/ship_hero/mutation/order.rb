@@ -1,7 +1,6 @@
 module ShipHero
   module Mutation
     class Order
-
       def create_order(order_data)
         <<~GRAPHQL
           mutation order_create($data: CreateOrderInput!) {
