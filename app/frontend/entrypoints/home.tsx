@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import InventoryManagement from "../components/InventoryManagement";
-import ShippingTracking from "../components/ShippingTracking";
 import ConfigurationForm from "../components/ConfigurationForm";
 
 interface FluidProps {
@@ -10,6 +8,7 @@ interface FluidProps {
   warehouseName: string;
   username: string;
   password: string;
+  fluidApiToken: string;
 }
 
 // Interfaces
@@ -42,11 +41,10 @@ const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, className = '' }) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                   ? 'border-gray-900 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -67,23 +65,13 @@ const TabContent: React.FC<TabContentProps> = ({ tabs, activeTab }) => {
   return <Component {...activeTabData.props} />;
 };
 
-const Fluid = ({ companyId, storeName, warehouseName, username, password }: FluidProps) => {
+const Fluid = ({ companyId, storeName, warehouseName, username, password, fluidApiToken }: FluidProps) => {
   const tabs: TabItem[] = [
     {
       id: 'configuration',
       label: 'Configuration',
       component: ConfigurationForm,
-      props: { companyId, storeName, warehouseName, username, password }
-    },
-    {
-      id: 'inventory-management',
-      label: 'Inventory Management',
-      component: InventoryManagement,
-    },
-    {
-      id: 'shipping-tracking',
-      label: 'Shipping Tracking',
-      component: ShippingTracking,
+      props: { companyId, storeName, warehouseName, username, password, fluidApiToken }
     }
   ];
 
@@ -106,5 +94,6 @@ const storeName = rootElement.dataset.storeName || '';
 const warehouseName = rootElement.dataset.warehouseName || '';
 const username = rootElement.dataset.username || '';
 const password = rootElement.dataset.password || '';
+const fluidApiToken = rootElement.dataset.fluidApiToken || '';
 
-root.render(<Fluid companyId={companyId} storeName={storeName} warehouseName={warehouseName} username={username} password={password} />);
+root.render(<Fluid companyId={companyId} storeName={storeName} warehouseName={warehouseName} username={username} password={password} fluidApiToken={fluidApiToken} />);

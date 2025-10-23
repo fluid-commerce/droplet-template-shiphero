@@ -8,11 +8,12 @@ interface ConfigurationFormProps {
   warehouseName: string;
   username: string;
   password: string;
+  fluidApiToken: string;
 }
 
 type ConnectionStatus = 'default' | 'connecting' | 'connected' | 'error';
 
-const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeName, warehouseName, username, password }) => {
+const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeName, warehouseName, username, password, fluidApiToken }) => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('default');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,6 +26,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeN
         warehouse_name: formData.get('warehouseName'),
         username: formData.get('username'),
         password: formData.get('password'),
+        fluid_api_token: formData.get('fluidApiToken'),
       }
     };
 
@@ -37,17 +39,17 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeN
       },
       body: JSON.stringify(data),
     })
-    .then(response => {
-      if (response.ok) {
-        alert('Configuration saved successfully!');
-      } else {
+      .then(response => {
+        if (response.ok) {
+          alert('Configuration saved successfully!');
+        } else {
+          alert('Error saving configuration');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
         alert('Error saving configuration');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error saving configuration');
-    });
+      });
   };
 
   const handleTestConnection = () => {
@@ -59,20 +61,20 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeN
         'Content-Type': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
       },
-      body: JSON.stringify({company_id: companyId}),
+      body: JSON.stringify({ company_id: companyId }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.connection) {
-        setConnectionStatus('connected');
-      } else {
+      .then(response => response.json())
+      .then(data => {
+        if (data.connection) {
+          setConnectionStatus('connected');
+        } else {
+          setConnectionStatus('error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
         setConnectionStatus('error');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      setConnectionStatus('error');
-    });
+      });
   };
 
   return (
@@ -80,8 +82,8 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeN
       <form className="space-y-8" onSubmit={handleSubmit}>
         <div className="bg-white rounded-lg p-6 border border-gray-200">
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Credentials</h2>
-            <p className="text-sm text-gray-600">Let's get you connected!</p>
+            <h2 className="text-lg font-semibold text-gray-900">Base Settings</h2>
+            <p className="text-sm text-gray-600">Configure your base settings</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -111,16 +113,14 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ companyId, storeN
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Type*
+                Fluid API Token*
               </label>
-              <select
-                name="type"
-                defaultValue="Production"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="Production">Production</option>
-                <option value="SandBox">SandBox</option>
-              </select>
+              <TextInput
+                type="text"
+                name="fluidApiToken"
+                placeholder="Fluid API Token"
+                defaultValue={fluidApiToken}
+              />
             </div>
           </div>
         </div>

@@ -1,8 +1,88 @@
 ## README
 
-Droplets are integrations between third-party services and Fluid. This is a repository intended to be used as an example for creating Droplets.
+ShipHero Droplet - Integration between ShipHero fulfillment service and Fluid Commerce.
+
+This droplet enables bidirectional order fulfillment:
+- **Fluid → ShipHero**: Creates orders in ShipHero when orders are placed in Fluid
+- **ShipHero → Fluid**: Updates order status with tracking information when shipments are processed
 
 Documentation can be found in the [project's GitHub page](https://fluid-commerce.github.io/droplet-template/)
+
+## Architecture
+
+### Order Creation Flow (Fluid → ShipHero)
+
+```mermaid
+sequenceDiagram
+    participant Fluid
+    participant Droplet as ShipHero Droplet
+    participant Queue as Background Job Queue
+    participant ShipHero as ShipHero API
+    
+    Fluid->>Droplet: POST /webhook (order.created)
+    activate Droplet
+    Droplet->>Droplet: Validate webhook token
+    Droplet->>Queue: Enqueue OrderCreatedJob
+    Droplet-->>Fluid: 202 Accepted
+    deactivate Droplet
+    
+    Queue->>Queue: Process OrderCreatedJob
+    activate Queue
+    Queue->>Queue: ShipHero::CreateOrder.new(payload)
+    Queue->>ShipHero: GraphQL mutation (create order)
+    activate ShipHero
+    ShipHero-->>Queue: Order created (order_id)
+    deactivate ShipHero
+    Queue->>Fluid: PATCH /v2/orders/:id/update_external_id
+    activate Fluid
+    Fluid-->>Queue: Order updated
+    deactivate Fluid
+    deactivate Queue
+```
+
+### Order Fulfillment Flow (ShipHero → Fluid)
+
+```mermaid
+sequenceDiagram
+    participant ShipHero as ShipHero Warehouse
+    participant Droplet as ShipHero Droplet
+    participant Queue as Background Job Queue
+    participant Fluid
+    
+    ShipHero->>Droplet: POST /webhook (shipment.created)
+    Note over ShipHero,Droplet: Webhook configured in ShipHero dashboard
+    activate Droplet
+    Droplet->>Queue: Enqueue OrderShippedJob
+    Droplet-->>ShipHero: 200 OK
+    deactivate Droplet
+    
+    Queue->>Queue: Process OrderShippedJob
+    activate Queue
+    Queue->>Queue: ShipHero::SyncShippedOrder.new(payload)
+    Queue->>Fluid: GET /v202506/orders/:id
+    activate Fluid
+    Fluid-->>Queue: Order details
+    deactivate Fluid
+    Queue->>Fluid: POST /order_fulfillments
+    activate Fluid
+    Note over Queue,Fluid: Includes tracking number & items
+    Fluid-->>Queue: Fulfillment created
+    deactivate Fluid
+    deactivate Queue
+```
+
+## Configuration Requirements
+
+### ShipHero Credentials
+- ShipHero API Username
+- ShipHero API Password
+- Store Name (for ShipHero)
+- Warehouse Name
+
+### Fluid API
+- Fluid API Token (for updating order status back to Fluid)
+
+These are configured through the droplet UI after installation.
 
 ## Production environment
 
@@ -52,15 +132,36 @@ Run `docker logs -it $(docker ps -q | head -n 1)`
 
 ## Local environment
 
+### Setup
+
+1. Install dependencies:
+   ```bash
+   bundle install
+   yarn install
+   gem install foreman
+   ```
+
+2. Setup database:
+   ```bash
+   bin/rails db:create db:migrate
+   ```
+
+3. Create default settings and test data (optional):
+   ```bash
+   bin/rails db:seed
+   ```
+
 ### Running locally
 
-Install dependencies with `bundle install` and `yarn install`
-and install foreman with `gem install foreman`  
-Just the rails server (port 3000)<br>
-`foreman start -f Procfile.dev`
+Just the rails server (port 3000):
+```bash
+foreman start -f Procfile.dev
+```
 
-Running everything (port 3200)<br>
-`bin/dev`
+Running everything (port 3200):
+```bash
+bin/dev
+```
 
 ### Running locally with docker
 
