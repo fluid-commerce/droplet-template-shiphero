@@ -1,7 +1,6 @@
 module ShipHero
   module Query
     class User
-
       def me
         <<~GRAPHQL
           query {

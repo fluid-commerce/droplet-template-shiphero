@@ -1,32 +1,37 @@
 module ShipHero
   class CreateOrder
-    attr_reader :params, :company_id, :company_name
+    attr_reader :params, :base_url, :fluid_api_token, :company_name
 
-    def initialize(params)
-      # @params = order_params['order'].to_unsafe_h.deep_symbolize_keys[:payload][:order]
-      @params = params['order'].to_unsafe_h.deep_symbolize_keys
-      @company_id = params['company_id']
-      @company_name = Company.find(@company_id)&.name
+    def initialize(order_params)
+      @params = order_params["order"].deep_symbolize_keys
+      @company_id = order_params["company_id"]
+      company = Company.find_by(fluid_company_id: @company_id)
+      @company_name = company&.name
+
+      integration_setting = IntegrationSetting.find_by(company_id: company.id)
+      @username = integration_setting.settings["username"]
+      @password = integration_setting.settings["password"]
+      @fluid_api_token = integration_setting.settings["fluid_api_token"]
     end
 
     def call
       order_response = create_order_in_shiphero
 
-      ship_hero_order_id = order_response.dig("data","order_create","order","id")
+      ship_hero_order_id = order_response.dig("data", "order_create", "order", "id")
 
-      return 'Failed to create order in Ship Hero' unless ship_hero_order_id.present?
+      return Result.new(false, nil, "Failed to create order in ShipHero") unless ship_hero_order_id.present?
 
       begin
-        fluid_service = FluidApi::V2::OrderService.new(ENV.fetch('FLUID_COMPANY_TOKEN', nil))
-        fluid_service.update_order(id: params[:id], external_id: ship_hero_order_id)
+        fluid_service = FluidApi::V2::OrdersService.new(fluid_api_token)
+        fluid_service.update_external_id(id: params[:id], external_id: ship_hero_order_id)
 
-        return { ship_hero_order_id: ship_hero_order_id }
+        Result.new(true, { ship_hero_order_id: ship_hero_order_id }, nil)
       rescue StandardError => e
-        "Failed to update order in Fluid: #{e.message}"
+        Result.new(false, nil, "Failed to update order in Fluid: #{e.message}")
       end
     end
 
-    private
+  private
 
     def create_order_in_shiphero
       order_data = build_order_data
@@ -41,38 +46,53 @@ module ShipHero
 
     def build_order_data
       {
-        order_number: 5,
+        order_number: params[:order_number],
         shop_name: company_name,
-        order_date: params[:sale_date],
+        order_date: params[:created_at],
         total_tax: params[:tax],
         subtotal: params[:subtotal],
         total_price: params[:amount],
         email: params[:email],
         shipping_address: {
-          first_name: params[:ship_to][:name],
-          last_name: params[:ship_to][:name],
+          first_name: parse_first_name,
+          last_name: parse_last_name,
           company: company_name,
-          address1: params[:ship_to][:address1],
-          address2: '',
-          city: params[:ship_to][:city],
-          state: params[:ship_to][:state],
-          state_code: params[:ship_to][:state_code] || 'UT',
-          zip: params[:ship_to][:postal_code],
-          country: 'United States',
-          country_code: params[:ship_to][:country_code],
+          address1: params.dig(:ship_to, :address1),
+          address2: params.dig(:ship_to, :address2),
+          city: params.dig(:ship_to, :city),
+          state: params.dig(:ship_to, :state),
+          state_code: params.dig(:ship_to, :state_code),
+          zip: params.dig(:ship_to, :postal_code),
+          country: params.dig(:ship_to, :country),
+          country_code: params.dig(:ship_to, :country_code),
           email: params[:email],
-          phone: params[:phone] || '',
+          phone: params[:phone],
         },
-        line_items: build_line_items
+        line_items: build_line_items,
       }
+    end
+
+    def parse_first_name
+      name = params.dig(:ship_to, :name)
+      return "" unless name
+
+      name_parts = name.split(" ", 2)
+      name_parts.first || ""
+    end
+
+    def parse_last_name
+      name = params.dig(:ship_to, :name)
+      return "" unless name
+
+      name_parts = name.split(" ", 2)
+      name_parts.length > 1 ? name_parts.last : ""
     end
 
     def build_line_items
       params[:items].map do |product|
         {
-          sku: product[:sku] || 'P102',
-          # partner_line_item_id: product[:id] || SecureRandom.uuid,
-          quantity: product[:quantity] || 1,
+          sku: product[:sku],
+          quantity: product[:quantity],
           price: product[:price].to_s,
           product_name: product[:title],
           option_title: product[:title],
@@ -80,5 +100,19 @@ module ShipHero
       end
     end
 
+    # Simple result object to match controller expectations
+    class Result
+      attr_reader :success, :data, :error
+
+      def initialize(success, data, error)
+        @success = success
+        @data = data
+        @error = error
+      end
+
+      def success?
+        success
+      end
+    end
   end
 end

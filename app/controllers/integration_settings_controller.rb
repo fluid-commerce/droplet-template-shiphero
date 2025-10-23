@@ -7,6 +7,7 @@ class IntegrationSettingsController < ApplicationController
       warehouse_name: integration_setting_params[:warehouse_name],
       username: integration_setting_params[:username],
       password: integration_setting_params[:password],
+      fluid_api_token: integration_setting_params[:fluid_api_token],
     })
 
     integration_setting.save!
@@ -30,6 +31,7 @@ class IntegrationSettingsController < ApplicationController
 private
 
   def integration_setting_params
-    params.require(:integration_setting).permit(:company_id, :store_name, :warehouse_name, :username, :password)
+    params.require(:integration_setting).permit(:company_id, :store_name, :warehouse_name, :username, :password,
+:fluid_api_token)
   end
 end
