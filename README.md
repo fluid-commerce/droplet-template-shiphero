@@ -99,7 +99,9 @@ rake shiphero:webhooks:setup[COMPANY_ID]
 rake shiphero:webhooks:list[COMPANY_ID]
 ```
 
-See [Webhook Quick Start](./docs/WEBHOOK_QUICK_START.md) for detailed instructions.
+**Documentation:**
+- [Webhook Quick Start](./docs/WEBHOOK_QUICK_START.md) - Get started in 3 commands
+- [Complete Webhook Guide](./docs/SHIPHERO_WEBHOOK_GUIDE.md) - Full reference with security & troubleshooting
 
 ## Production environment
 
