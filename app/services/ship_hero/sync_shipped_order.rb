@@ -53,43 +53,50 @@ module ShipHero
     end
 
     def extract_shipment_data
-      # ShipHero webhook payload structure for shipment_update
-      # This will depend on ShipHero's actual webhook structure
-      # You may need to adjust based on their API documentation
+      # ShipHero "Shipment Update" webhook payload structure
+      # See: https://developer.shiphero.com/webhooks/
+      #
+      # Payload contains:
+      # - webhook_type: "Shipment Update"
+      # - fulfillment: { shipment_id, tracking_number, partner_order_id, etc. }
+      # - packages: [ { tracking_number, line_items, shipping_label, etc. } ]
 
-      # Example payload structure (adjust as needed):
-      # {
-      #   "order_id": "123456",
-      #   "order_number": "FLUID-12345",
-      #   "tracking_number": "1Z999AA10123456784",
-      #   "carrier": "UPS",
-      #   "shipped_date": "2025-01-15T10:30:00Z"
-      # }
+      fulfillment = payload.dig("fulfillment")
+      unless fulfillment
+        Rails.logger.warn("Missing 'fulfillment' in ShipHero webhook payload")
+        return nil
+      end
 
-      order_number = payload.dig("order_number")
-      tracking_number = payload.dig("tracking_number")
+      # partner_order_id is what we sent to ShipHero (should be Fluid order ID or number)
+      partner_order_id = fulfillment["partner_order_id"]
+      tracking_number = fulfillment["tracking_number"]
+      warehouse = fulfillment["warehouse"]
 
-      unless order_number && tracking_number
+      # ShipHero can send multiple packages
+      packages = payload["packages"] || []
+
+      unless partner_order_id && tracking_number
         Rails.logger.warn("Missing required fields in ShipHero webhook payload")
         return nil
       end
 
-      # The order_number should match the Fluid order ID or order_number
-      # Depending on how you set up the initial order creation
       {
-        fluid_order_id: extract_fluid_order_id(order_number),
+        fluid_order_id: partner_order_id,
         tracking_number: tracking_number,
-        carrier: payload.dig("carrier"),
-        shipped_date: payload.dig("shipped_date"),
+        carrier: fulfillment["shipping_carrier"],
+        shipping_method: fulfillment["shipping_method"],
+        warehouse: warehouse,
+        shipment_id: fulfillment["shipment_id"],
+        order_number: fulfillment["order_number"],
+        packages: packages,
+        created_at: fulfillment["created_at"],
       }
     end
 
     def extract_fluid_order_id(order_number)
-      # If you stored the Fluid order ID in the order_number field,
-      # extract it here. Otherwise, you may need to query your database
-      # to find the mapping between ShipHero order and Fluid order.
-
-      # For now, assuming order_number contains or is the Fluid order ID
+      # partner_order_id from ShipHero should be the Fluid order ID
+      # that we sent when creating the order in ShipHero
+      # No transformation needed if we used the Fluid order ID directly
       order_number
     end
 
@@ -98,7 +105,7 @@ module ShipHero
       parsed_fluid_order = JSON.parse(fluid_order.body, symbolize_names: true)
 
       # Check if the response indicates order not found
-      if parsed_fluid_order.blank? || parsed_fluid_order["error"]
+      if parsed_fluid_order.blank? || parsed_fluid_order[:error]
         Rails.logger.info("No Fluid order found for ID #{fluid_order_id}")
         return nil
       end
@@ -126,7 +133,7 @@ module ShipHero
 
       parsed_fulfillment_response = JSON.parse(fulfillment_response.body, symbolize_names: true)
 
-      if parsed_fulfillment_response.blank? || parsed_fulfillment_response["error"]
+      if parsed_fulfillment_response.blank? || parsed_fulfillment_response[:error]
         Rails.logger.error("Failed to fulfill order #{fluid_order_id} in Fluid")
         return nil
       end

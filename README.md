@@ -84,6 +84,23 @@ sequenceDiagram
 
 These are configured through the droplet UI after installation.
 
+### Webhook Configuration
+
+After setting up ShipHero credentials, you need to register webhooks in ShipHero:
+
+```bash
+# Check webhook status
+rake shiphero:webhooks:check[COMPANY_ID]
+
+# Setup webhooks automatically
+rake shiphero:webhooks:setup[COMPANY_ID]
+
+# List all webhooks
+rake shiphero:webhooks:list[COMPANY_ID]
+```
+
+See [Webhook Quick Start](./docs/WEBHOOK_QUICK_START.md) for detailed instructions.
+
 ## Production environment
 
 ### Google cloud infrastructure
