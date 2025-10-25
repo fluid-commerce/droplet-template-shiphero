@@ -162,7 +162,7 @@ namespace :shiphero do
     end
 
     desc "Delete a webhook from ShipHero"
-    task :delete, [ :company_id, :webhook_name ] => :environment do |_t, args|
+    task :delete, %i[company_id webhook_name] => :environment do |_t, args|
       company_id = args[:company_id] || ENV["COMPANY_ID"]
       webhook_name = args[:webhook_name] || ENV["WEBHOOK_NAME"]
       shop_name = ENV["SHOP_NAME"] || "fluid-droplet"
@@ -245,4 +245,3 @@ namespace :shiphero do
     end
   end
 end
-

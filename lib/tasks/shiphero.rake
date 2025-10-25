@@ -213,4 +213,3 @@ namespace :shiphero do
     HELP
   end
 end
-

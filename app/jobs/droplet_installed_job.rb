@@ -46,7 +46,7 @@ private
 
   def store_droplet_uuid_if_needed(droplet_uuid)
     droplet_setting = Setting.droplet
-    
+
     # Only update if UUID is not already set
     if droplet_setting.values["uuid"].blank? && droplet_uuid.present?
       droplet_setting.values = droplet_setting.values.merge("uuid" => droplet_uuid)

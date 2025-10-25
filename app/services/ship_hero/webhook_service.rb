@@ -237,4 +237,3 @@ module ShipHero
     end
   end
 end
-
