@@ -3,7 +3,14 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   def validate_droplet_authorization
-    unless params.dig(:company, :droplet_uuid) == Setting.droplet.uuid
+    incoming_uuid = params.dig(:company, :droplet_uuid)
+    stored_uuid = Setting.droplet.values["uuid"]
+
+    # Allow first installation if no UUID is stored yet
+    return if stored_uuid.blank?
+
+    # Validate UUID matches for subsequent installations
+    unless incoming_uuid == stored_uuid
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end

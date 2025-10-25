@@ -16,6 +16,9 @@ class DropletInstalledJob < WebhookEventJob
     validate_payload_keys("company")
     company_attributes = get_payload.fetch("company", {})
 
+    # Store droplet UUID on first installation
+    store_droplet_uuid_if_needed(company_attributes["droplet_uuid"])
+
     company = Company.find_by(fluid_shop: company_attributes["fluid_shop"]) || Company.new
 
     company.assign_attributes(company_attributes.slice(
@@ -40,6 +43,17 @@ class DropletInstalledJob < WebhookEventJob
   end
 
 private
+
+  def store_droplet_uuid_if_needed(droplet_uuid)
+    droplet_setting = Setting.droplet
+
+    # Only update if UUID is not already set
+    if droplet_setting.values["uuid"].blank? && droplet_uuid.present?
+      droplet_setting.values = droplet_setting.values.merge("uuid" => droplet_uuid)
+      droplet_setting.save!
+      Rails.logger.info("[DropletInstalledJob] Stored droplet UUID: #{droplet_uuid}")
+    end
+  end
 
   def register_active_callbacks(company)
     client = FluidClient.new(company.authentication_token)
